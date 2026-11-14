@@ -1,0 +1,18 @@
+# env / secrets
+backend/.env
+backend/vitanet.db
+*.db
+
+# logs
+logs/*.log
+logs/latest.log
+
+# venv
+venv/
+backend/.venv/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

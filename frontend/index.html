@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>VITA-NET — Astronaut Health Monitoring</title>
+<meta name="description" content="Crew health monitoring dashboard prototype for the NASA Space Apps Challenge." />
+<link rel="stylesheet" href="css/theme.css" />
+<link rel="stylesheet" href="css/dashboard.css" />
+<!-- dashboard-extra.css merged into dashboard.css (ponytail: one file, split when >500 lines) -->
+</head>
+<body>
+
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">VITA-NET</span>
+      <span class="brand-sub" data-i18n="brand_sub">Crew Health Monitor</span>
+    </div>
+    <div class="mission-clock mono" id="mission-clock">MET 000:00:00:00</div>
+    <div class="topbar-spacer"></div>
+    <div class="backend-indicator" id="backend-indicator" data-state="unknown">
+      <span class="dot"></span>
+      <span id="backend-indicator-label" data-i18n="backend_checking">checking backend…</span>
+    </div>
+    <button id="theme-toggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+    <select id="lang-select" class="lang-select" aria-label="Dil seçin"></select>
+  </header>
+
+  <!-- Floating alerts drawer -->
+  <div id="alerts-drawer" class="alerts-drawer" aria-live="polite">
+    <div class="alerts-drawer-header">
+      <strong data-i18n="alert_drawer_title">Alerts</strong>
+      <span id="alert-drawer-count" class="mono" style="font-size:0.75rem;color:var(--text-faint)"></span>
+      <button id="alerts-drawer-close" aria-label="Close" data-i18n-aria="btn_close">✕</button>
+    </div>
+    <div id="alerts-ticker"></div>
+  </div>
+  <button id="alerts-toggle" class="alerts-toggle" aria-label="Toggle alerts" data-i18n-aria="alert_drawer_title">
+    🔔 <span id="alerts-badge" class="alerts-badge" style="display:none"></span>
+  </button>
+
+  <main class="main-grid container" id="main-content">
+
+    <h1 class="visually-hidden">VITA-NET Crew Health Monitor</h1>
+
+    <section class="hud-panel" id="roster-section" aria-labelledby="roster-heading">
+      <div class="panel-heading">
+        <h2 id="roster-heading" data-i18n="roster_heading">Crew status</h2>
+        <span class="mono" style="font-size:0.75rem;color:var(--text-faint)" id="roster-count"></span>
+      </div>
+      <div class="roster-toolbar">
+        <input id="roster-search" type="search" data-i18n-placeholder="search_placeholder" data-i18n-aria="search_aria" placeholder="Search crew…" aria-label="Search crew" />
+        <select id="roster-status-filter" aria-label="Filter by status">
+          <option value="all" data-i18n="filter_all">All</option>
+          <option value="ok" data-i18n="filter_normal">Normal</option>
+          <option value="watch" data-i18n="filter_watch">Watch</option>
+          <option value="crit" data-i18n="filter_crit">Critical</option>
+        </select>
+        <button id="add-astronaut-btn" class="add-btn" data-i18n="add_crew">+ Add crew</button>
+        <button id="reset-demo-btn" class="add-btn" style="background:var(--bg-panel)" data-i18n="reset_demo">↺ Reset demo</button>
+        <button id="settings-btn" class="add-btn" style="background:var(--bg-panel)" data-i18n="settings">⚙ Settings</button>
+      </div>
+      <div id="roster-grid"></div>
+    </section>
+
+    <section class="hud-panel" id="detail-panel-wrap" aria-labelledby="detail-heading">
+      <div id="detail-panel">
+        <p id="detail-empty" data-i18n="select_prompt">Select a crew member to see full vitals, trends and advisor notes.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer" data-i18n="footer_disclaimer">
+    Prototype for NASA Space Apps Challenge — simulated data, not a certified medical device.
+  </footer>
+</div>
+
+<!-- Add astronaut modal -->
+<div id="add-astronaut-modal" class="modal-overlay" hidden>
+  <div class="modal-box hud-panel">
+    <h3 data-i18n="modal_add_title">Add crew member</h3>
+    <form id="add-astronaut-form">
+      <label><span data-i18n="label_name">Name</span> <input name="name" required data-i18n-placeholder="placeholder_name" placeholder="e.g. Alex Rivera" /></label>
+      <label><span data-i18n="label_role">Role</span> <input name="role" data-i18n-placeholder="placeholder_role" placeholder="e.g. Payload Specialist" /></label>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+        <button type="submit" data-i18n="btn_add">Add</button>
+        <button type="button" id="add-astronaut-cancel" data-i18n="btn_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div id="settings-modal" class="modal-overlay" hidden>
+  <div class="modal-box hud-panel">
+    <h3 data-i18n="settings">⚙ Settings</h3>
+    <form id="settings-form">
+      <label>
+        <span data-i18n="settings_crew_size">Crew size</span>
+        <input id="settings-crew-size" type="number" min="1" max="200" value="6" required />
+      </label>
+      <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+        <button type="submit" data-i18n="settings_save">Save</button>
+        <button type="button" id="settings-cancel" data-i18n="settings_cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<template id="tpl-detail">
+  <button id="back-detail" class="back-btn" data-i18n="btn_back" data-i18n-aria="back_aria" aria-label="Back"><span class="back-text" data-i18n="btn_back">← Back</span></button>
+  <div class="detail-header">
+    <div class="crew-avatar" id="d-avatar"></div>
+    <h2 id="d-name"></h2>
+    <button id="close-detail" aria-label="Close">✕</button>
+    <div class="mode-toggle">
+      <button data-mode="live" class="is-active" data-i18n="btn_live_sim">Live sim</button>
+      <button data-mode="manual" data-i18n="btn_manual_entry">Manual entry</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="detail-tabs">
+    <button data-tab="vitals" class="is-active" data-i18n="tab_vitals">Vitals</button>
+    <button data-tab="analytics" data-i18n="tab_analytics">Analytics</button>
+    <button data-tab="mission" data-i18n="tab_mission">Mission</button>
+  </div>
+
+  <!-- Vitals tab -->
+  <div id="tab-vitals">
+    <div class="vitals-grid" id="d-vitals"></div>
+    <div id="d-mood-wrap">
+      <div class="mood-readout">
+        <span data-i18n="mood_label">Read-out:</span>
+        <span class="mood-badge" id="d-mood"></span>
+      </div>
+    </div>
+    <div id="d-chart-wrap">
+      <div class="panel-heading"><h2 data-i18n="label_trend">Trend — last readings</h2></div>
+      <select class="lang-select" id="d-chart-metric" style="margin-bottom:0.5rem"></select>
+      <canvas class="trend-chart" id="d-chart"></canvas>
+    </div>
+    <div>
+      <div class="panel-heading"><h2 data-i18n="label_advisor">Advisor</h2></div>
+      <div class="advisor-feed" id="d-advisor"></div>
+    </div>
+  </div>
+
+  <!-- Analytics tab -->
+  <div id="tab-analytics" hidden>
+    <div class="panel-heading"><h2 data-i18n="panel_analytics">Analytics</h2></div>
+    <div id="analytics-panel"></div>
+  </div>
+
+  <!-- Mission tab -->
+  <div id="tab-mission" hidden>
+    <div class="panel-heading"><h2 data-i18n="panel_mission">Mission Status</h2></div>
+    <div id="mission-panel"></div>
+  </div>
+
+  <form class="manual-entry" id="d-manual-form" hidden></form>
+</template>
+
+<!-- VITA-NET Assistant — chat + voice -->
+<button id="assistant-fab" class="assistant-fab" data-i18n-aria="assistant_open" aria-label="Assistant">💬</button>
+<div id="assistant-drawer" class="assistant-drawer" hidden>
+  <div class="assistant-header">
+    <div>
+      <strong data-i18n="assistant_title">LIFELINE Assistant</strong>
+      <div style="font-size:0.72rem;color:var(--text-faint)" data-i18n="assistant_sub">Ask about vitals, mission, or health advice</div>
+    </div>
+    <div style="display:flex;gap:0.3rem">
+        <button id="assistant-clear" class="icon-btn" data-i18n="assistant_clear">Clear</button>
+        <button id="assistant-close" class="icon-btn" data-i18n-aria="assistant_close" aria-label="Close">✕</button>
+      </div>
+  </div>
+  <div id="assistant-log" class="assistant-log" aria-live="polite"></div>
+  <div id="assistant-status" class="assistant-status mono" style="font-size:0.72rem;color:var(--text-faint);min-height:1.2em"></div>
+  <form id="assistant-form" class="assistant-form">
+    <input id="assistant-input" type="text" autocomplete="off" data-i18n-placeholder="assistant_placeholder" placeholder="Type a message…" aria-label="Message" />
+    <button type="submit" data-i18n="assistant_send">Send</button>
+  </form>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

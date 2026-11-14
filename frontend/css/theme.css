@@ -1,0 +1,191 @@
+/*
+  VITA-NET — design tokens
+  Direction: a spacecraft flight-console instrument panel, not a generic
+  dark-mode SaaS dashboard. Hairline rules and corner brackets instead of
+  rounded cards + drop shadows; a phosphor-amber primary readout color
+  instead of the default neon blue/violet; tabular monospace reserved for
+  numbers that are actually telemetry (not used as a "tech" decoration).
+
+  Fonts are system-stack on purpose: zero network requests, so the page
+  never stalls or blanks out waiting on a font CDN during a live demo.
+*/
+
+:root {
+  /* -- color: deep space + phosphor console -- */
+  --bg-void: #05070c;
+  --bg-panel: #0c121d;
+  --bg-panel-raised: #121a2a;
+  --line: #24344a;
+  --line-bright: #3a5170;
+
+  --text-primary: #e9eef6;
+  --text-muted: #90a1b8;
+  --text-faint: #5b6c85;
+
+  --accent-amber: #ffb454;
+  --accent-amber-dim: #a8763a;
+  --accent-cyan: #5fd4c8;
+
+  --status-ok: #4ed17f;
+  --status-ok-bg: rgba(78, 209, 127, 0.12);
+  --status-watch: #ffcc4d;
+  --status-watch-bg: rgba(255, 204, 77, 0.12);
+  --status-crit: #ff5c5c;
+  --status-crit-bg: rgba(255, 92, 92, 0.14);
+
+  --focus-ring: #5fd4c8;
+
+  /* -- type -- */
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+  /* -- layout -- */
+  --gutter: 1.25rem;
+  --radius: 3px; /* deliberately small — instrument panels aren't rounded-card UI */
+  --header-h: 64px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Light variant — aerospace console meets technical paper.
+       Warm off-white base with subtle grain, crisp cyan/amber accents,
+       distinct panel hierarchy, and consistent interaction states. */
+    --bg-void: #fafbfc;
+    --bg-panel: #ffffff;
+    --bg-panel-raised: #f3f5f8;
+    --line: #d0d5dd;
+    --line-bright: #b8bfc9;
+
+    --text-primary: #0f172a;
+    --text-muted: #334155;
+    --text-faint: #64748b;
+
+    --accent-amber: #b45309;
+    --accent-amber-dim: #92400e;
+    --accent-cyan: #0d9488;
+
+    --status-ok: #0f7b3f;
+    --status-ok-bg: rgba(15, 123, 63, 0.10);
+    --status-ok-bg-strong: rgba(15, 123, 63, 0.18);
+    --status-watch: #b87a00;
+    --status-watch-bg: rgba(184, 122, 0, 0.10);
+    --status-watch-bg-strong: rgba(184, 122, 0, 0.18);
+    --status-crit: #c02626;
+    --status-crit-bg: rgba(192, 38, 38, 0.10);
+    --status-crit-bg-strong: rgba(192, 38, 38, 0.18);
+
+    --focus-ring: #0d9488;
+
+    /* Stronger status chip backgrounds for better contrast */
+    --status-ok-bg: var(--status-ok-bg-strong);
+    --status-watch-bg: var(--status-watch-bg-strong);
+    --status-crit-bg: var(--status-crit-bg-strong);
+
+    /* Subtle grain texture for paper-like feel */
+    --bg-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+  }
+
+  body {
+    background-image: var(--bg-grain);
+  }
+}
+
+* , *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { margin: 0 0 0.5em; font-weight: 600; letter-spacing: 0.01em; }
+p { margin: 0 0 0.75em; color: var(--text-muted); }
+a { color: var(--accent-cyan); }
+
+button, select, input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--line);
+  color: var(--text-primary);
+  border-radius: var(--radius);
+  padding: 0.5em 0.9em;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+button:hover { border-color: var(--line-bright); }
+button.is-active {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--gutter);
+  padding: 0.5rem 1rem;
+  background: var(--accent-amber);
+  color: var(--bg-void);
+  border-radius: var(--radius);
+  z-index: 100;
+  text-decoration: none;
+  font-weight: 600;
+}
+.skip-link:focus { top: var(--gutter); }
+
+/* Starfield canvas sits fixed behind everything */
+#starfield {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: var(--bg-void);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}

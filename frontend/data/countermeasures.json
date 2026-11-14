@@ -1,0 +1,8 @@
+{
+  "heartRate": ["Hydrate 250ml", "Rest 10 min, recheck HR"],
+  "bp": ["Rest seated 5 min, recheck BP", "Reduce sodium, monitor"],
+  "spo2": ["Check O2 supply, mask seal", "Reduce exertion, monitor"],
+  "radiation": ["Move to shielded area", "Log exposure, review timeline"],
+  "stress": ["Breathing 4-7-8, 2 min", "Light task only"],
+  "temp": ["Hydrate, cool environment", "Recheck temp in 10 min"]
+}

@@ -1,0 +1,6 @@
+[
+  {"id":"radiation","title":"Radiation in Space","body":"600 mSv career limit (NASA 2022). 50 mSv/yr watch line. Shielding + time + distance reduces dose.","url":"https://www.nasa.gov/humans-in-space"},
+  {"id":"hypoxia","title":"Hypoxia","body":"SpO2 <95% watch, <90% crit. Check O2 loop, exertion, cabin pressure.","url":"https://www.who.int/health-topics"},
+  {"id":"hypertension","title":"Hypertension WHO/ISH","body":"130/85 high-normal, 140/90 grade1, 180/110 grade3 crisis. Recheck after 5 min rest.","url":"https://www.who.int/news-room/fact-sheets/detail/hypertension"},
+  {"id":"fatigue","title":"Fatigue & Stress","body":"Simulated stress 55 watch, 80 crit. Sleep + hydration + task rotation counters fatigue.","url":"https://www.nasa.gov/hrp"}
+]

@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "description": "Single-source threshold specification for VITA-NET Health Monitor. Generates both frontend/js/thresholds.js and backend/thresholds.py",
+  "status": {
+    "values": ["ok", "watch", "crit"],
+    "order": {"ok": 0, "watch": 1, "crit": 2}
+  },
+  "constants": {
+    "RADIATION_WATCH_MSV": 50,
+    "RADIATION_CAREER_LIMIT_MSV": 600
+  },
+  "thresholds": {
+    "heartRate": {
+      "type": "range",
+      "source": "Clinical HR 50-100 bpm",
+      "url": "https://www.who.int/health-topics",
+      "critLow": 40,
+      "watchLow": 50,
+      "watchHigh": 100,
+      "critHigh": 140
+    },
+    "bloodPressure": {
+      "type": "bp_stages",
+      "source": "WHO/ISH 2024",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/hypertension",
+      "stages": [
+        {"stage": "grade3", "status": "crit", "sysMin": 180, "diaMin": 110},
+        {"stage": "grade2", "status": "crit", "sysMin": 160, "diaMin": 100},
+        {"stage": "grade1", "status": "watch", "sysMin": 140, "diaMin": 90},
+        {"stage": "high-normal", "status": "watch", "sysMin": 130, "diaMin": 85},
+        {"stage": "low", "status": "watch", "sysMax": 90, "diaMax": 60},
+        {"stage": "normal", "status": "ok"}
+      ]
+    },
+    "spo2": {
+      "type": "range",
+      "source": "Clinical SpO2 95-100%",
+      "url": "https://www.who.int/health-topics",
+      "critLow": 90,
+      "watchLow": 95
+    },
+    "temperature": {
+      "type": "range",
+      "source": "Clinical 36-37.8 C",
+      "url": "https://www.who.int/health-topics",
+      "critLow": 35,
+      "watchLow": 36,
+      "watchHigh": 37.8,
+      "critHigh": 39
+    },
+    "radiation": {
+      "type": "radiation",
+      "source": "NASA 600 mSv career, NCRP 50 mSv/yr",
+      "url": "https://www.nasa.gov/humans-in-space",
+      "critRatio": 0.8
+    },
+    "stress": {
+      "type": "range",
+      "source": "Simulated composite",
+      "url": "",
+      "watchLow": 55,
+      "critLow": 80
+    }
+  },
+  "refs": {
+    "heartRate": {"source": "Clinical HR 50-100 bpm", "url": "https://www.who.int/health-topics"},
+    "bp": {"source": "WHO/ISH 2024", "url": "https://www.who.int/news-room/fact-sheets/detail/hypertension"},
+    "spo2": {"source": "Clinical SpO2 95-100%", "url": "https://www.who.int/health-topics"},
+    "temp": {"source": "Clinical 36-37.8 C", "url": "https://www.who.int/health-topics"},
+    "radiation": {"source": "NASA 600 mSv career, NCRP 50 mSv/yr", "url": "https://www.nasa.gov/humans-in-space"},
+    "stress": {"source": "Simulated composite", "url": ""}
+  }
+}
