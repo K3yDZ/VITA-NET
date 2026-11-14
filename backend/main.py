@@ -126,7 +126,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         path = request.url.path
         # Exempt static files (css, js, images, fonts, etc.)
-        if any(path.startswith(f"/{prefix}") for prefix in ("css/", "js/", "img/", "images/", "fonts/", "assets/", "favicon")):
+        if any(path.startswith(f"/{prefix}") for prefix in ("css/", "js/", "img/", "images/", "fonts/", "assets/", "locales/", "favicon")):
             return await call_next(request)
         if path in exempt_exact:
             return await call_next(request)
