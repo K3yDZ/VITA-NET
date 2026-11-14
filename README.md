@@ -126,19 +126,6 @@ locales/*.json — 16 languages (en/tr/es/fr/de/ja/zh/ru/ar/pt/it/ko/hi/nl/pl/id
 
 ---
 
-## Recent Optimizations (2026-10-29)
-
-See `SYNC.md` for full log:
-
-- OpenRouter models reordered cheap→expensive (reduces latency/cost on first attempt)
-- NVIDIA model list trimmed to confirmed free-tier models only
-- System prompt tightened: space-medicine context, ≤1 sentence, no diagnosis, cite numbers
-- Token limits reduced: OpenRouter 60→45, NVIDIA 150→100, Anthropic 200→120
-- Added `ADVISOR_SKIP_OPENROUTER` env to skip expensive first tier
-- Structured logging: `model`, `key_idx`, `latency_ms`, `source` fields
-
----
-
 ## Demo Checklist
 
 - [ ] Backend starts: `uvicorn main:app --reload --port 8000`
