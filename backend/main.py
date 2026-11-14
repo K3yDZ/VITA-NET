@@ -1,4 +1,4 @@
-﻿"""LIFELINE backend - FastAPI service."""
+﻿"""VITA-NET backend - FastAPI service."""
 
 import os
 import logging
@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
     yield
     log.info("Shutdown")
 
-app = FastAPI(title="LIFELINE Health Monitor API", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="VITA-NET Health Monitor API", version="0.2.0", lifespan=lifespan)
 
 # Exception handlers to ensure HTTPExceptions are returned as proper responses
 @app.exception_handler(StarletteHTTPException)
@@ -311,7 +311,7 @@ def get_astronaut(astronaut_id: str):
 
 
 @app.post("/api/astronauts")
-def create_astronaut(a: Astronaut = Body(..., max_size=10_000)):
+def create_astronaut(a: Astronaut = Body(...)):
     try:
         database.upsert_astronaut(a.id, a.name, a.role)
     except Exception as e:
@@ -365,7 +365,7 @@ def simulate_vitals(astronaut_id: str):
 
 
 @app.post("/api/astronauts/{astronaut_id}/vitals")
-def post_vitals(astronaut_id: str, reading: VitalsReading = Body(..., max_size=10_000)):
+def post_vitals(astronaut_id: str, reading: VitalsReading = Body(...)):
     _check_known(astronaut_id)
     database.insert_reading(astronaut_id, reading)
     log.info("Vitals stored astronaut=%s hr=%.0f", astronaut_id, reading.heartRate)
@@ -401,7 +401,7 @@ def mission_hazards():
 
 
 @app.post("/api/advice", response_model=AdviceResponse)
-def post_advice(req: AdviceRequest = Body(..., max_size=10_000)):
+def post_advice(req: AdviceRequest = Body(...)):
     text, source = advisor.generate_advice(req)
     log.info("Advice astronaut=%s source=%s alerts=%d", req.astronaut.id, source, len(req.alerts))
     return AdviceResponse(advice=text, source=source)
@@ -431,7 +431,7 @@ class ChatRequest(_BM2):
 
 
 @app.post("/api/assistant/chat")
-def assistant_chat(req: ChatRequest = Body(..., max_size=10_000)):
+def assistant_chat(req: ChatRequest = Body(...)):
     msg = _sanitize_chat(req.message)
     if not msg:
         raise HTTPException(status_code=400, detail="empty message")
